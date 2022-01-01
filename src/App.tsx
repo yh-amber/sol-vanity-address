@@ -1,24 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { ChangeEvent, useCallback } from 'react';
+import { useKeys } from './providers/KeyProvider';
+import Input from './components/input/Input';
+import Generate from './components/buttons/Generate';
+import Stop from './components/buttons/Stop';
+import FormError from './components/errors/FormError';
+import styles from './App.module.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className={styles.app}>
+      <h2>Solana Vanity Address</h2>
+      <FormError />
+      <Input />
+
+      <div className={styles.buttons}>
+        <Generate />
+        <Stop />
+      </div>
     </div>
   );
 }
