@@ -10,8 +10,6 @@ async function init_wasm_in_worker(expect) {
 
   const keypair = SolKeypair.generate(expect);
 
-  console.log('+++++++', keypair);
-
   if (keypair instanceof SolKeypair && keypair.hasOwnProperty('ptr')) {
     const pubkeyPointer = keypair.public_key();
     const secretkeyPointer = keypair.secret_key();
