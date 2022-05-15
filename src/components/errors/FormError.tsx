@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { useKeys } from '../../providers/KeyProvider';
 import styles from './Error.module.css';
 

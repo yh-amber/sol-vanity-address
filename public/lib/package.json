@@ -1,0 +1,14 @@
+{
+  "name": "wasm-vanity-address",
+  "collaborators": [
+    "yh-amber <psczyh@sina.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "wasm_vanity_address_bg.wasm",
+    "wasm_vanity_address.js",
+    "wasm_vanity_address.d.ts"
+  ],
+  "browser": "wasm_vanity_address.js",
+  "types": "wasm_vanity_address.d.ts"
+}

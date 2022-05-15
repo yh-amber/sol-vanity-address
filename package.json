@@ -47,5 +47,5 @@
       "last 1 safari version"
     ]
   },
-  "config-overrides-path": "react-app-rewired.config.js"
+  "config-overrides-path": "rewired.config.js"
 }

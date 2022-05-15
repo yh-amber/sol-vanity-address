@@ -6,11 +6,11 @@ import reportWebVitals from './reportWebVitals';
 import KeyProvider from './providers/KeyProvider';
 
 ReactDOM.render(
-  <KeyProvider>
-    <React.StrictMode>
+  <React.StrictMode>
+    <KeyProvider>
       <App />
-    </React.StrictMode>
-  </KeyProvider>,
+    </KeyProvider>
+  </React.StrictMode>,
   document.getElementById('root')
 );
 

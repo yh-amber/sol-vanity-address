@@ -4,10 +4,10 @@ import { useKeys } from '../../providers/KeyProvider';
 import styles from './Button.module.css';
 
 const Stop = () => {
-  const { stopGeneration } = useKeys();
+  const { stopGenerator } = useKeys();
 
   return (
-    <button className={styles.button} onClick={stopGeneration}>Stop</button>
+    <button className={styles.button} onClick={stopGenerator}>Stop</button>
   );
 }
 

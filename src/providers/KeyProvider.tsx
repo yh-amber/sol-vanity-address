@@ -1,49 +1,53 @@
-import React, { createContext, FC, ReactNode, useCallback, useContext, useEffect, useReducer } from 'react';
-import { getAddressExample } from '../utils/address';
-import GenerationWorker from '../utils/generate';
-import { changeWorkerStatus, getWorkerStatus } from '../utils/worker-status';
-import { ActionType } from '../types/enums';
-import { BASE58_ALPHABET, INPUT_ERROR_ALLOWED } from '../constants/constants'
+import { createContext, FC, ReactNode, useCallback, useContext, useReducer } from 'react';
+import WorkerGenerator from '../utils/generator';
+import { ActionType, GeneratorStatus } from '../types/enums';
+import { Ed25519Keypair } from '../types/interfaces';
+import { BASE58_ALPHABET } from '../constants/constants'
 
 interface State {
   input: string,
-  example: string,
-  generator: GenerationWorker,
+  generator: WorkerGenerator,
+  keypair: Ed25519Keypair,
   errors: string[],
+  progress: GeneratorStatus,
 }
 
 interface IContext {
   state: State,
   updateInputs: (val: string) => void,
   updateErrors: (val: string) => void,
-  generate: () => void;
-  stopGeneration: () => void,
+  startGenerator: () => void;
+  stopGenerator: () => void,
 }
 
 const initialState = {
   input: '',
   errors: [],
-  example: getAddressExample(''),
-  generator: new GenerationWorker(),
+  generator: new WorkerGenerator(),
+  keypair: {
+    publicKey: '',
+    secretKey: Uint8Array.from([]),
+  },
+  progress: GeneratorStatus.INITIATED,
 }
 
 const Context = createContext<IContext>({
   state: initialState,
   updateInputs: () => {},
   updateErrors: () => {},
-  generate: () => {},
-  stopGeneration: () => {},
+  startGenerator: () => {},
+  stopGenerator: () => {},
 })
 
 export const useKeys = () => {
-  const { state, updateInputs, updateErrors, generate, stopGeneration } = useContext(Context);
+  const { state, updateInputs, updateErrors, startGenerator, stopGenerator } = useContext(Context);
 
   return {
     state,
     updateInputs,
     updateErrors,
-    generate,
-    stopGeneration,
+    startGenerator,
+    stopGenerator,
   }
 }
 
@@ -53,21 +57,33 @@ const reducer = (state: State, action: any): State => {
       return {
         ...state,
         input: action.value,
-        example: action.example,
       }
-    };
+    }
     case ActionType.SET_GENERATOR: {
       return {
         ...state,
-        generator: action.value
+        generator: action.value,
+        progress: action.status,
       }
-    };
+    }
+    case ActionType.UPDATE_KEYPAIR: {
+      return {
+        ...state,
+        keypair: action.keypair,
+      }
+    }
+    case ActionType.UPDATE_PROGRESS: {
+      return {
+        ...state,
+        progress: action.status,
+      }
+    }
     case ActionType.ERROR: {
       return {
         ...state,
         errors: action.errors
       }
-    };
+    }
     default:
       throw new Error();
   }
@@ -79,18 +95,11 @@ const KeyProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { input, generator } = state;
 
   const updateInputs = useCallback((value: string) => {
-    if (!BASE58_ALPHABET.includes(value.charAt(value.length - 1))) {
-      updateErrors(INPUT_ERROR_ALLOWED);
-
-      return;
-    }
-
-    const example = getAddressExample(value);
+    if (!BASE58_ALPHABET.includes(value.charAt(value.length - 1))) return;
 
     dispatch({
       type: ActionType.UPDATE_INPUTS,
       value,
-      example,
     })
   }, []);
 
@@ -107,18 +116,37 @@ const KeyProvider: FC<{ children: ReactNode }> = ({ children }) => {
     })
   }, [])
 
-  const generate = useCallback(() => {
-    generator.start(input);
+  const startGenerator = useCallback(() => {
+    if (input) {
+      dispatch({
+        type: ActionType.UPDATE_PROGRESS,
+        status: GeneratorStatus.IN_PROGRESS
+      });
+
+      const dispatchCallback = (keypair: Ed25519Keypair) => {
+        dispatch({
+          type: ActionType.UPDATE_KEYPAIR,
+          keypair,
+        });
+
+        dispatch({
+          type: ActionType.SET_GENERATOR,
+          value: new WorkerGenerator(),
+          status: GeneratorStatus.INITIATED,
+        });        
+      }
+
+      generator.start(input, dispatchCallback);
+    }
   }, [input, generator]);
 
-  const stopGeneration = useCallback(() => {
-    changeWorkerStatus(true);
-
+  const stopGenerator = useCallback(() => {
     generator.stop();
 
     dispatch({
       type: ActionType.SET_GENERATOR,
-      value: new GenerationWorker(),
+      value: new WorkerGenerator(),
+      status: GeneratorStatus.INITIATED,
     });
   }, [generator]);
 
@@ -126,8 +154,8 @@ const KeyProvider: FC<{ children: ReactNode }> = ({ children }) => {
     state,
     updateInputs,
     updateErrors,
-    generate,
-    stopGeneration,
+    startGenerator,
+    stopGenerator,
   }
 
   return (

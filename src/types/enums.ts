@@ -1,14 +1,14 @@
-
 export enum ActionType {
   UPDATE_INPUTS,
   SET_GENERATOR,
+  UPDATE_KEYPAIR,
+  UPDATE_PROGRESS,
   ERROR,
 }
 
-export enum GenerationStatus {
+export enum GeneratorStatus {
   INITIATED,
   IN_PROGRESS,
   COMPLETED,
-  TERMINATING,
   TERMINATED,
 }

@@ -1,5 +1,4 @@
-
 export interface Ed25519Keypair {
-  publicKey: Uint8Array,
+  publicKey: string,
   secretKey: Uint8Array,
 }
